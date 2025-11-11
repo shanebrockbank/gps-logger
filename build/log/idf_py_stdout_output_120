@@ -1,0 +1,112 @@
+Command: /opt/esp/python_env/idf6.1_py3.12_env/bin/python /opt/esp/idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32-elf- --target esp32 --revision 0 /project/build/gps-logger.elf /project/build/bootloader/bootloader.elf -m '/opt/esp/python_env/idf6.1_py3.12_env/bin/python' '/opt/esp/idf/tools/idf.py' '-p' '/dev/ttyACM0'
+�J
+��}����� Project name:     gps-logger
+[0;32mI (184) app_init: App veets Jul 29 2019 12:21:46[0m
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0040,len:6376
+load:0x40078000,len:15900
+ho 0 tail 12 room 4
+load:0x40080400,len:3920
+entry 0x40080644
+[0;32mI (29) boot: ESP-IDF v6.1-dev-450-g286b8cb76d 2nd stage bootloader[0m
+[0;32mI (29) boot: compile time Nov 11 2025 19:44:41[0m
+[0;32mI (29) boot: Multicore bootloader[0m
+[0;32mI (32) boot: chip revision: v3.1[0m
+[0;32mI (35) boot.esp32: SPI Speed      : 40MHz[0m
+[0;32mI (39) boot.esp32: SPI Mode       : DIO[0m
+[0;32mI (42) boot.esp32: SPI Flash Size : 2MB[0m
+[0;32mI (46) boot: Enabling RNG early entropy source...[0m
+[0;32mI (50) boot: Partition Table:[0m
+[0;32mI (53) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (59) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (66) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (72) boot:  2 factory          factory app      00 00 00010000 00100000[0m
+[0;32mI (79) boot: End of partition table[0m
+[0;32mI (82) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=08e30h ( 36400) map[0m
+[0;32mI (103) esp_image: segment 1: paddr=00018e58 vaddr=3ffb0000 size=02610h (  9744) load[0m
+[0;32mI (107) esp_image: segment 2: paddr=0001b470 vaddr=40080000 size=04ba8h ( 19368) load[0m
+[0;32mI (115) esp_image: segment 3: paddr=00020020 vaddr=400d0020 size=0f238h ( 62008) map[0m
+[0;32mI (137) esp_image: segment 4: paddr=0002f260 vaddr=40084ba8 size=06174h ( 24948) load[0m
+[0;32mI (148) esp_image: segment 5: paddr=000353dc vaddr=50000000 size=00028h (    40) load[0m
+[0;32mI (153) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (154) boot: Disabling RNG early entropy source...[0m
+[0;32mI (166) cpu_start: Multicore app[0m
+[0;32mI (174) cpu_start: GPIO 3 and 1 are used as console UART I/O pins[0m
+[0;32mI (174) cpu_start: Pro cpu start user code[0m
+[0;32mI (174) cpu_start: cpu freq: 160000000 Hz[0m
+[0;32mI (176) app_init: Application information:[0m
+[0;32mI (180) app_init: Project name:     gps-logger[0m
+[0;32mI (184) app_init: App version:      1[0m
+[0;32mI (187) app_init: Compile time:     Nov 11 2025 19:44:51[0m
+[0;32mI (192) app_init: ELF file SHA256:  1d8a1703f...[0m
+[0;32mI (197) app_init: ESP-IDF:          v6.1-dev-450-g286b8cb76d[0m
+[0;32mI (202) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (206) efuse_init: Max chip rev:     v3.99 [0m
+[0;32mI (210) efuse_init: Chip rev:         v3.1[0m
+[0;32mI (214) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (220) heap_init: At 3FFAE6E0 len 00001920 (6 KiB): DRAM[0m
+[0;32mI (225) heap_init: At 3FFB2ED0 len 0002D130 (180 KiB): DRAM[0m
+[0;32mI (230) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM[0m
+[0;32mI (236) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM[0m
+[0;32mI (241) heap_init: At 4008AD1C len 000152E4 (84 KiB): IRAM[0m
+[0;33mW (248) spi_flash: Detected boya flash chip but using generic driver. For optimal functionality, enable `SPI_FLASH_SUPPORT_BOYA_CHIP` in menuconfig[0m
+[0;32mI (260) spi_flash: detected chip: generic[0m
+[0;32mI (263) spi_flash: flash io: dio[0m
+[0;33mW (266) spi_flash: Detected size(4096k) larger than the size in the binary image header(2048k). Using the size in the binary image header.[0m
+[0;32mI (279) main_task: Started on CPU0[0m
+[0;32mI (289) main_task: Calling app_main()[0m
+[0;32mI (289) MAIN: GPS Logger Starting...[0m
+[0;32mI (289) MAIN: ESP-IDF Version: v6.1-dev-450-g286b8cb76d[0m
+[0;32mI (289) MAIN: Heartbeat: 0[0m
+[0;32mI (1289) MAIN: Heartbeat: 1[0m
+[0;32mI (2289) MAIN: Heartbeat: 2[0m
+[0;32mI (3289) MAIN: Heartbeat: 3[0m
+[0;32mI (4289) MAIN: Heartbeat: 4[0m
+[0;32mI (5289) MAIN: Heartbeat: 5[0m
+[0;32mI (6289) MAIN: Heartbeat: 6[0m
+[0;32mI (7289) MAIN: Heartbeat: 7[0m
+[0;32mI (8289) MAIN: Heartbeat: 8[0m
+[0;32mI (9289) MAIN: Heartbeat: 9[0m
+[0;32mI (10289) MAIN: Heartbeat: 10[0m
+[0;32mI (11289) MAIN: Heartbeat: 11[0m
+[0;32mI (12289) MAIN: Heartbeat: 12[0m
+[0;32mI (13289) MAIN: Heartbeat: 13[0m
+[0;32mI (14289) MAIN: Heartbeat: 14[0m
+[0;32mI (15289) MAIN: Heartbeat: 15[0m
+[0;32mI (16289) MAIN: Heartbeat: 16[0m
+[0;32mI (17289) MAIN: Heartbeat: 17[0m
+[0;32mI (18289) MAIN: Heartbeat: 18[0m
+[0;32mI (19289) MAIN: Heartbeat: 19[0m
+[0;32mI (20289) MAIN: Heartbeat: 20[0m
+[0;32mI (21289) MAIN: Heartbeat: 21[0m
+[0;32mI (22289) MAIN: Heartbeat: 22[0m
+[0;32mI (23289) MAIN: Heartbeat: 23[0m
+[0;32mI (24289) MAIN: Heartbeat: 24[0m
+[0;32mI (25289) MAIN: Heartbeat: 25[0m
+[0;32mI (26289) MAIN: Heartbeat: 26[0m
+[0;32mI (27289) MAIN: Heartbeat: 27[0m
+[0;32mI (28289) MAIN: Heartbeat: 28[0m
+[0;32mI (29289) MAIN: Heartbeat: 29[0m
+[0;32mI (30289) MAIN: Heartbeat: 30[0m
+[0;32mI (31289) MAIN: Heartbeat: 31[0m
+[0;32mI (32289) MAIN: Heartbeat: 32[0m
+[0;32mI (33289) MAIN: Heartbeat: 33[0m
+[0;32mI (34289) MAIN: Heartbeat: 34[0m
+[0;32mI (35289) MAIN: Heartbeat: 35[0m
+[0;32mI (36289) MAIN: Heartbeat: 36[0m
+[0;32mI (37289) MAIN: Heartbeat: 37[0m
+[0;32mI (38289) MAIN: Heartbeat: 38[0m
+[0;32mI (39289) MAIN: Heartbeat: 39[0m
+[0;32mI (40289) MAIN: Heartbeat: 40[0m
+[0;32mI (41289) MAIN: Heartbeat: 41[0m
+[0;32mI (42289) MAIN: Heartbeat: 42[0m
+[0;32mI (43289) MAIN: Heartbeat: 43[0m
+[0;32mI (44289) MAIN: Heartbeat: 44[0m
+[0;32mI (45289) MAIN: Heartbeat: 45[0m
+[0;32mI (46289) MAIN: Heartbeat: 46[0m
+[0;32mI (47289) MAIN: Heartbeat: 47[0m
+[0;32mI (48289) MAIN: Heartbeat: 48[0m
