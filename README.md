@@ -294,7 +294,7 @@ gps-logger/
 
 ## Coding Standards
 
-All code follows the rules in `claude.md`:
+All code follows these rules:
 
 - **Negative-space (early-exit) pattern** — error cases first, max two nesting levels
 - **Single-responsibility functions** — no function mixes hardware, logic, and parsing

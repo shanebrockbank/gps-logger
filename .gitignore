@@ -4,6 +4,11 @@ sdkconfig
 sdkconfig.old
 dependencies.lock
 
+# Project planning / AI assistant files
+claude.md
+planning
+planning2
+
 # Docker
 *.dockerfile
 docker-compose.yml
