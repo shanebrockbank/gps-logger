@@ -38,6 +38,7 @@
 /project/build/esp-idf/mbedtls/mbedtls/3rdparty/everest/libeverest.a
 /project/build/esp-idf/mbedtls/mbedtls/3rdparty/p256-m/libp256m.a
 /project/build/esp-idf/esp_security/libesp_security.a
+/project/build/esp-idf/esp_pm/libesp_pm.a
 /project/build/esp-idf/esp_hal_wdt/libesp_hal_wdt.a
 /project/build/esp-idf/vfs/libvfs.a
 /project/build/esp-idf/esp_hal_i2c/libesp_hal_i2c.a
@@ -77,7 +78,6 @@
 /project/build/esp-idf/esp_partition/libesp_partition.a
 /project/build/esp-idf/efuse/libefuse.a
 /project/build/esp-idf/esp_driver_gpio/libesp_driver_gpio.a
-/project/build/esp-idf/esp_pm/libesp_pm.a
 /project/build/esp-idf/esp_hal_timg/libesp_hal_timg.a
 /project/build/esp-idf/esp_hal_wdt/libesp_hal_wdt.a
 /project/build/esp-idf/bootloader_support/libbootloader_support.a

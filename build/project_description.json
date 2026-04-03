@@ -1415,12 +1415,12 @@
             "dir": "/project/main",
             "type": "LIBRARY",
             "lib": "__idf_main",
-            "reqs": [],
+            "reqs": [ "esp_driver_gpio", "esp_driver_i2c", "esp_driver_uart", "nvs_flash", "esp_timer", "esp_pm" ],
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "file": "/project/build/esp-idf/main/libmain.a",
-            "sources": [ "/project/main/main.c" ],
+            "sources": [ "/project/main/main.c", "/project/main/system_manager.c", "/project/main/power/power_manager.c", "/project/main/power/power_modes.c", "/project/main/power/ina226_driver.c", "/project/main/input/button_handler.c", "/project/main/communication/i2c_bus.c", "/project/main/communication/gps_driver.c", "/project/main/communication/nmea_parser.c", "/project/main/communication/gps_manager.c", "/project/main/display/ssd1306_driver.c", "/project/main/display/display_manager.c", "/project/main/display/screen_gps.c", "/project/main/display/screen_status.c" ],
             "include_dirs": [ "." ]
         },
         "mbedtls": {
@@ -3165,7 +3165,7 @@
             "prefix": "idf",
             "dir": "/project/main",
             "lib": "__idf_main",
-            "reqs": [],
+            "reqs": [ "esp_driver_gpio", "esp_driver_i2c", "esp_driver_uart", "nvs_flash", "esp_timer", "esp_pm" ],
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],

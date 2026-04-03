@@ -1,2 +1,40 @@
-idf_component_register(SRCS "main.c"
-                    INCLUDE_DIRS ".")
+idf_component_register(
+    SRCS
+        "main.c"
+        "system_manager.c"
+        "power/power_manager.c"
+        "power/power_modes.c"
+        "power/ina226_driver.c"
+        "power/battery_monitor.c"
+        "input/button_handler.c"
+        "communication/i2c_bus.c"
+        "communication/gps_driver.c"
+        "communication/nmea_parser.c"
+        "communication/gps_manager.c"
+        "gps/distance_calc.c"
+        "display/ssd1306_driver.c"
+        "display/display_manager.c"
+        "display/screen_gps.c"
+        "display/screen_status.c"
+        "display/screen_ranging.c"
+        "wireless/espnow_manager.c"
+        "wireless/wifi_scanner.c"
+        "wireless/ble_scanner.c"
+        "wireless/lora_manager.c"
+        "storage/sd_logger.c"
+    INCLUDE_DIRS "."
+    REQUIRES
+        esp_driver_gpio
+        esp_driver_i2c
+        esp_driver_uart
+        esp_driver_spi
+        nvs_flash
+        esp_timer
+        esp_pm
+        esp_wifi
+        esp_netif
+        esp_now
+        bt
+        fatfs
+        sdmmc
+)

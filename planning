@@ -1,0 +1,423 @@
+GPS Logger Project - Revised Multi-Phase Development Plan
+
+ 🎯 Core Philosophy
+
+ Display-first, battery-powered testing, power-aware from start. Displays provide immediate feedback, battery power enables total system current measurement via INA226. Each phase
+ builds incrementally with clear success criteria.
+
+ ---
+ 📋 PHASE 1: ESP32 Power Management Foundation (1-2 days)
+
+ Goal: Implement real ESP32 power modes with measurable current reduction
+
+ Tasks:
+ 1. Enable ESP-IDF power management in menuconfig
+ 2. Implement CPU frequency scaling (240MHz → 80MHz → 40MHz)
+ 3. Configure automatic light sleep
+ 4. Test deep sleep with GPIO wake-up
+ 5. Create power_modes.c/h with mode control functions
+
+ Success Criteria:
+ - Active mode: ~80mA @ 240MHz
+ - Idle mode: ~30mA @ 80MHz with auto light sleep
+ - Deep sleep: <1mA with GPIO wake capability
+ - INA226 confirms current readings match expectations
+
+ Testing:
+ - Measure current in each mode for 10 seconds
+ - Verify wake from deep sleep via button
+ - Log power mode transitions
+
+ ---
+ 📋 PHASE 2: Code Reorganization (1 day)
+
+ Goal: Clean architecture following claude.md structure
+
+ Tasks:
+ 1. Create directory structure: power/, display/, gps/, wireless/, input/
+ 2. Move INA226 code: power_manager.c → power/ina226_driver.c
+ 3. Create power/power_modes.c for mode control (from Phase 1)
+ 4. Create power/power_manager.c as orchestrator (no hardware logic)
+ 5. Update main.c to be minimal entry point only
+ 6. Update CMakeLists.txt for new structure
+
+ Success Criteria:
+ - Builds successfully
+ - Same functionality as before
+ - main.c <50 lines
+ - power/power_manager.c has no I2C code
+ - Each file has single responsibility
+
+ Testing:
+ - Build and flash
+ - Verify INA226 still reads correctly
+ - Verify power modes still work
+
+ ---
+ 📋 PHASE 3: Display Integration - Power Aware (3-4 days)
+
+ Goal: Dual SSD1306 OLEDs operational with power management
+
+ Tasks:
+ 1. Create display/ssd1306_driver.c/h - I2C OLED driver
+ 2. Create display/display_manager.c/h - Dual display coordinator
+ 3. Create display/screen_gps.c/h - Display 1 rendering (placeholder data for now)
+ 4. Create display/screen_status.c/h - Display 2 rendering
+ 5. Implement display power states:
+   - OFF: Displays powered down
+   - DIM: Reduced brightness
+   - FULL: Full brightness
+ 6. Share I2C bus with INA226 using mutex
+ 7. Button 1: Toggle display brightness (OFF → DIM → FULL)
+
+ Display 1 Content (Phase 3):
+ - System state text
+ - Placeholder position (will show real GPS later)
+ - Button test counter
+
+ Display 2 Content:
+ - Current draw (mA) from INA226
+ - Voltage (V) from INA226
+ - Power (mW) from INA226
+ - System uptime
+
+ Success Criteria:
+ - Both displays work on shared I2C bus
+ - No I2C conflicts with INA226
+ - INA226 current readings shown in real-time on Display 2
+ - Display off reduces current by 15-20mA
+ - DIM mode reduces current by 5-10mA vs FULL
+ - Button 1 cycles display brightness reliably
+
+ Testing:
+ - Show current draw on Display 2 (meta!)
+ - Button press updates Display 1 counter
+ - Power test: measure current with displays in each mode
+ - I2C stress test: rapid display updates with INA226 reads
+
+ ---
+ 📋 PHASE 4: Battery Power System (2-3 days)
+
+ Goal: Device runs from battery, INA226 measures total system current
+
+ Tasks:
+ 1. Create power/battery_monitor.c/h - Battery voltage estimation
+ 2. Wire INA226 shunt resistor to measure battery current (total system)
+ 3. Add battery voltage sensing (ADC on battery divider if available)
+ 4. Display battery voltage on Display 2
+ 5. Implement battery state estimation (%, remaining time)
+ 6. Add low battery warning (visual indicator on display)
+ 7. Optional: Add TP4056 18650 charging circuit
+
+ Power Architecture:
+ Battery → INA226 Shunt → ESP32 + All Peripherals
+                 ↓
+            Current measurement (total system)
+
+ Success Criteria:
+ - Device boots and runs from battery only (no USB)
+ - INA226 measures total system current accurately
+ - Battery voltage displayed on Display 2
+ - Battery percentage estimation shown
+ - Can run for >1 hour on single charge
+ - Low battery warning appears at 20%
+
+ Testing:
+ - Disconnect USB, verify device runs from battery
+ - Compare INA226 reading with external ammeter
+ - Discharge test: run until battery depleted, verify estimates
+ - Charge cycle: verify battery charges correctly (if TP4056 added)
+
+ ---
+ 📋 PHASE 5: System State Machine Core (2-3 days)
+
+ Goal: Implement working state machine with 3 power states
+
+ Tasks:
+ 1. Define system states: BOOT, IDLE, ACTIVE, SLEEP
+ 2. Implement event queue and state transition logic
+ 3. Create state handlers for each state
+ 4. Wire button events to trigger state transitions
+ 5. Each state sets appropriate power mode
+ 6. Display current state on both displays
+
+ Power Impact Per State:
+ - BOOT: Full power (240MHz), initialize hardware
+ - IDLE: 80MHz, auto light sleep, displays DIM
+ - ACTIVE: 160MHz, displays FULL
+ - SLEEP: Deep sleep, wake on button
+
+ Button Mapping:
+ - Button 1: Cycle display brightness (in IDLE/ACTIVE)
+ - Button 2: Toggle IDLE ↔ ACTIVE
+ - Button 3 (short): No function yet
+ - Button 3 (long hold): Enter SLEEP
+
+ Success Criteria:
+ - State transitions logged and shown on Display 1
+ - Button 2 cycles: IDLE → ACTIVE → IDLE
+ - Button 3 (long press) → SLEEP → Button 3 → BOOT → IDLE
+ - INA226 shows distinct current for each state on Display 2
+ - 30-minute idle test: device stays in light sleep, <35mA average
+
+ Testing:
+ - Manual button press sequences
+ - Measure and display current in each state for 30 seconds
+ - Verify no spurious wake-ups during idle
+ - Battery life extrapolation based on measured currents
+
+ ---
+ 📋 PHASE 6: GPS Integration - Power Aware (3-4 days)
+
+ Goal: NEO-M8N GPS with power management and real position display
+
+ Tasks:
+ 1. Create gps/neo_m8n.c/h - UART driver for GPS
+ 2. Create gps/nmea_parser.c/h - Parse NMEA sentences
+ 3. Create gps/gps_manager.c/h - Lifecycle control
+ 4. Implement GPS power states:
+   - OFF: No UART, no power
+   - STANDBY: Low power mode command to GPS
+   - ACQUISITION: Full power, 10Hz updates
+   - TRACKING: Reduced power, 1Hz updates
+ 5. System state controls GPS mode:
+   - IDLE: GPS in STANDBY
+   - ACTIVE: GPS in TRACKING
+   - SLEEP: GPS OFF
+ 6. Update Display 1 with real GPS data
+
+ Display 1 Content (Updated):
+ - Current GPS position (lat/lon)
+ - Number of satellites
+ - GPS fix status
+ - Altitude
+
+ Success Criteria:
+ - Parse GGA/RMC sentences correctly
+ - GPS fix acquired outdoors in <1 minute
+ - GPS standby mode reduces current by 15-20mA (visible on Display 2)
+ - Valid lat/lon displayed on Display 1 at 1Hz in ACTIVE state
+ - GPS resumes from standby in <5 seconds
+
+ Testing:
+ - Indoor: verify UART communication, see satellites in view
+ - Outdoor: verify GPS fix, watch real position on Display 1
+ - Power test: observe Display 2 current change with GPS in each mode
+ - State transition: IDLE→ACTIVE, verify GPS resumes quickly
+ - Battery life test: measure runtime with GPS active
+
+ ---
+ 📋 PHASE 7: ESP-NOW Communication (3-4 days)
+
+ Goal: Two devices communicate position data, handle in/out of range gracefully
+
+ Tasks:
+ 1. Create wireless/protocol_types.h - Common data structures
+ 2. Create wireless/espnow_manager.c/h - ESP-NOW implementation
+ 3. Implement broadcast: send GPS position every 1s
+ 4. Implement receive: parse incoming positions
+ 5. Create gps/distance_calc.c/h - Haversine distance
+ 6. Handle device out-of-range (timeout after 5s no packets)
+ 7. Display range status on Display 1 ("IN RANGE" / "OUT OF RANGE")
+ 8. Add wireless state to system: new state RANGING
+ 9. Button 2: Start/stop ranging (ACTIVE → RANGING)
+
+ Display 1 Content (Updated):
+ - Local position (lat/lon)
+ - Remote position (lat/lon)
+ - Distance to remote device (meters)
+ - Range status (IN/OUT)
+ - Packet loss %
+
+ Display 2 Content (Updated):
+ - Current draw with ESP-NOW active
+ - RSSI (signal strength)
+ - Packets received
+ - Battery %
+
+ Success Criteria:
+ - Two devices exchange positions
+ - Distance calculated and displayed correctly
+ - Graceful handling: "OUT OF RANGE" shown when no packets for 5s
+ - Devices reconnect automatically when back in range
+ - Range test: devices maintain link at 100m outdoors
+ - ESP-NOW adds ~15mA (visible on Display 2)
+ - Packet reception rate >95% at close range
+
+ Testing:
+ - Two devices, stationary: verify distance ≈ 0m
+ - Walk 50m apart: verify distance matches GPS reading
+ - Range boundary test: walk slowly away until "OUT OF RANGE" appears, note distance
+ - Walk back: verify automatic reconnection
+ - Power test: observe Display 2 current with ESP-NOW active
+ - Battery life: measure runtime during ranging
+
+ ---
+ 📋 PHASE 8: Multi-Protocol Support (4-5 days)
+
+ Goal: WiFi, BLE, LoRa alongside ESP-NOW, handle range boundaries
+
+ Tasks:
+ 1. Create wireless/wifi_scanner.c/h
+ 2. Create wireless/ble_scanner.c/h
+ 3. Create wireless/lora_manager.c/h (SPI, LR02 module)
+ 4. Protocol view cycling with Button 1
+ 5. Display protocol-specific metrics
+ 6. Each protocol maintains independent state
+ 7. Each protocol handles timeout and reconnection
+ 8. Range boundary detection: Track which protocols work at each distance
+
+ Button Mapping (Updated):
+ - Button 1: Cycle protocol view (ALL→WiFi→BLE→ESP-NOW→LoRa→ALL)
+ - Button 2: Start/stop ranging
+ - Button 3: Long press for sleep
+
+ Display 1 Content (Updated):
+ - Shows data from selected protocol
+ - Distance from selected protocol
+ - Protocol name displayed
+ - Range status per protocol
+
+ Display 2 Content (Updated):
+ - RSSI per protocol
+ - Packet loss per protocol
+ - Which protocols are IN RANGE
+ - Total current draw
+
+ Success Criteria:
+ - All 4 protocols broadcast/receive simultaneously
+ - Protocol view cycles through: ALL→WiFi→BLE→ESP-NOW→LoRa
+ - Each protocol shows IN/OUT RANGE status independently
+ - LoRa achieves >500m range outdoors
+ - Multi-protocol mode current: <120mA
+ - Graceful reconnection when devices return to range
+ - Can identify which protocol has longest range
+
+ Testing:
+ - Range comparison: walk away slowly, note when each protocol drops (the boundary!)
+ - Power comparison: Display 2 shows current per protocol combination
+ - Reliability test: packet loss at various distances for each protocol
+ - Real-world boundary test: walk 1km, record which protocols work at each 50m interval
+ - Re-approach test: verify all protocols reconnect automatically
+
+ ---
+ 📋 PHASE 9: SD Card Logging (2-3 days)
+
+ Goal: Log position data, distance, power, and range boundaries
+
+ Tasks:
+ 1. Create storage/sd_logger.c/h (SPI)
+ 2. Share SPI bus with LoRa via chip select
+ 3. Log format: CSV with timestamp, position, distance, power, RSSI per protocol, in-range status per protocol
+ 4. Periodic flush: every 10 seconds
+ 5. SD card only active when RANGING state
+ 6. File management: new file each session
+ 7. Log range boundary transitions (when IN→OUT or OUT→IN)
+
+ CSV Columns:
+ timestamp,lat,lon,battery_v,current_ma,wifi_rssi,wifi_in_range,ble_rssi,ble_in_range,espnow_rssi,espnow_in_range,lora_rssi,lora_in_range,distance_m
+
+ Success Criteria:
+ - Data logged correctly to SD card
+ - Files readable on PC (CSV format)
+ - Range boundaries clearly visible in data (in_range transitions)
+ - No data loss during power transitions
+ - SD card adds <10mA when writing
+ - Can log for >6 hours continuously
+
+ Testing:
+ - 1-hour ranging session, verify CSV data on PC
+ - Range test: walk 500m away, walk back, verify CSV shows all range transitions
+ - Power test: Display 2 shows current increase with SD logging
+ - Data integrity: verify no corrupted entries
+ - Analysis: plot distance vs RSSI for each protocol from CSV
+
+ ---
+ 📋 PHASE 10: Advanced Power Optimization (2-3 days)
+
+ Goal: Automatic power mode transitions and optimization
+
+ Tasks:
+ 1. Implement idle timeout: ACTIVE → IDLE after 30s inactivity
+ 2. Implement auto-sleep: IDLE → SLEEP after 5 minutes
+ 3. Power budget enforcement (shed features if battery <20%)
+ 4. Wake-on-GPS-fix (if GPS gets fix in STANDBY, transition to ACTIVE)
+ 5. Display auto-dim after 10s in ACTIVE
+ 6. Selective protocol disable to extend battery (e.g., disable WiFi/BLE if only LoRa needed)
+
+ Success Criteria:
+ - Device auto-sleeps if unused for 5 minutes
+ - Wakes immediately on button press
+ - GPS acquisition triggers automatic wake
+ - Average current in typical use <45mA
+ - Battery lasts >12 hours in RANGING mode
+ - Low battery mode disables power-hungry features
+
+ Testing:
+ - Leave device idle for 10 minutes, verify sleep
+ - Wake from sleep, verify all systems resume
+ - 12-hour battery endurance test with ranging
+ - Low battery test: verify graceful degradation at 20%
+
+ ---
+ 📋 PHASE 11: Polish & Optimization (2-3 days)
+
+ Goal: Production-ready device
+
+ Tasks:
+ 1. Refine button handling (debouncing, long-press detection)
+ 2. Add startup logo on displays
+ 3. Add error handling for missing hardware (SD card, GPS)
+ 4. Settings menu via buttons (future: NVS storage)
+ 5. Optimize task stack sizes
+ 6. Documentation: user guide, test results
+ 7. Range test report: create graphs from CSV data
+
+ Success Criteria:
+ - Device feels responsive
+ - No crashes during 24-hour run
+ - Graceful handling of missing GPS fix
+ - Power consumption documented per mode
+ - Complete range test report with graphs
+
+ ---
+ 🧪 Testing Strategy Summary
+
+ Per-Phase Testing:
+ - Build and flash successfully
+ - Visual confirmation on displays
+ - Power measurement visible on Display 2
+ - Serial log verification
+ - Battery runtime estimation
+
+ Integration Testing (After Phase 7):
+ - Two-device ranging test
+ - Range boundary identification
+ - Battery life measurement
+ - State machine stress test
+
+ System Testing (After Phase 9):
+ - Real-world range test: 1km walk, test all protocols
+ - CSV data analysis: plot distance vs RSSI
+ - Multi-day reliability test
+ - Complete power consumption profile
+
+ ---
+ 📊 Power Budget Target
+
+ | State          | Target Current | Components Active    | Battery Life (2500mAh) |
+ |----------------|----------------|----------------------|------------------------|
+ | SLEEP          | <1mA           | RTC only             | >100 days              |
+ | IDLE           | ~30mA          | CPU, Displays DIM    | >80 hours              |
+ | ACTIVE         | ~45mA          | +GPS, Displays FULL  | >50 hours              |
+ | RANGING        | ~110mA         | +ESP-NOW, SD logging | >20 hours              |
+ | MULTI-PROTOCOL | ~120mA         | +WiFi+BLE+LoRa       | >18 hours              |
+
+ ---
+ 🎯 Key Changes from Original Plan
+
+ 1. Displays First (Phase 3): Immediate visual feedback, can see power consumption in real-time
+ 2. Battery Power Early (Phase 4): Enables total system current measurement via INA226
+ 3. Power Optimization Last (Phase 10): Save optimizations until all features working
+ 4. Range Boundary Focus: Every wireless phase emphasizes detecting the exact range limit where protocols transition IN↔OUT of range
+
